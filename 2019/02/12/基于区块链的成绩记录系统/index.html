@@ -102,12 +102,10 @@
 <meta property="og:site_name" content="MuYun&#39;s Blog">
 <meta property="og:description" content="区块链概念从狭义上看，区块链可以理解为分布式的数据库，它按照时间戳的顺序将数据区块（block）以顺序相连的方式来组成一个链式的数据结构[6]，同时采用可非对称加密算法的方式来保证了数据的无法被篡改和无法被伪造。从广义上来看，区块链式一系列计算机技术的利用模型，其包括了：存储和验证数据用到的链式数据结构、来保证数据传输和利用安全的密码学加密方式、来编程和操作数据的自动化脚本和智能合约，这是一种全">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/.com//02/12/基于区块链的成绩记录系统/pc1.png">
-<meta property="og:updated_time" content="2019-07-30T13:28:16.892Z">
+<meta property="og:updated_time" content="2019-07-30T13:34:42.544Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="基于区块链的成绩记录系统">
 <meta name="twitter:description" content="区块链概念从狭义上看，区块链可以理解为分布式的数据库，它按照时间戳的顺序将数据区块（block）以顺序相连的方式来组成一个链式的数据结构[6]，同时采用可非对称加密算法的方式来保证了数据的无法被篡改和无法被伪造。从广义上来看，区块链式一系列计算机技术的利用模型，其包括了：存储和验证数据用到的链式数据结构、来保证数据传输和利用安全的密码学加密方式、来编程和操作数据的自动化脚本和智能合约，这是一种全">
-<meta name="twitter:image" content="http://yoursite.com/.com//02/12/基于区块链的成绩记录系统/pc1.png">
 
 
 
@@ -349,7 +347,7 @@
 </li>
 <li><p><b>系统功能需求设计</b><br>为了保证成绩数据的真实性，所以对于学生用户而言，不可以自己添加相应的成绩信息，而是由具有一定权限的用户来添加或者修改，但学生用户可以通过溯源属性来认证自己的的成绩信息从而确定其真实性，对于用户，整个系统分为两种：<br>  学生用户：具有查询成绩和认证成绩的功能，其中查询成绩可以通过学号和姓名查询，也可以通过身份证号码进行查询，此途径可以实现溯源功能。<br>  教师用户：额外增加了添加成绩和修改成绩的功能，可以向系统中添加新的成绩信息和对已存在的信息进行修改。<br>  对于所有用户，均要求进行登录来合法授权，进而保证系统的安全性，整个系统的功能模型如图2所示：</p>
 <p>
-<img src="/.com//02/12/基于区块链的成绩记录系统/pc1.png" title="This is an example image">
+
 <div align="center">![](pc1.png)</div>
 </p></li>
 <li><p><b>系统整体架构设计</b><br>此系统的架构设计综合了各方面的情况来考虑，首先，底层基于Hyperledgerfabric区块链网络来实现，其默认存储的数据状态是levelDB，考虑到要实现组合查询，将其替换为CouchDB。业务层主要利用Fabric-SDK-Go相应的一些API通过调用链来与账本数据进行交互，其交互过程涉及到Event Stream。在视图层的Controller接受业务层交互的结果，并将结果通过Web View层面反馈给用户。<br>所以整个架构是一个MVC（Model View Controller）模型架构[10]，Controller负责接收用户发来的请求，然后根据不同的请求调用业务层不同的函数，业务层根据接收到的请求调用链码中的不同函数进而实现对账本数据的操作，操作完成后逐层返回最终在客户端呈现，这部分利用GoWeb的模板语言来呈现给用户，具体架构设计图如图：</p>
