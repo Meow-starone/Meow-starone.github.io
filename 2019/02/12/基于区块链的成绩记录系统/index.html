@@ -103,7 +103,7 @@
 <meta property="og:description" content="区块链概念从狭义上看，区块链可以理解为分布式的数据库，它按照时间戳的顺序将数据区块（block）以顺序相连的方式来组成一个链式的数据结构[6]，同时采用可非对称加密算法的方式来保证了数据的无法被篡改和无法被伪造。从广义上来看，区块链式一系列计算机技术的利用模型，其包括了：存储和验证数据用到的链式数据结构、来保证数据传输和利用安全的密码学加密方式、来编程和操作数据的自动化脚本和智能合约，这是一种全">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/.com//02/12/基于区块链的成绩记录系统/pc1.png">
-<meta property="og:updated_time" content="2019-07-30T14:32:59.886Z">
+<meta property="og:updated_time" content="2019-07-30T14:37:18.255Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="基于区块链的成绩记录系统">
 <meta name="twitter:description" content="区块链概念从狭义上看，区块链可以理解为分布式的数据库，它按照时间戳的顺序将数据区块（block）以顺序相连的方式来组成一个链式的数据结构[6]，同时采用可非对称加密算法的方式来保证了数据的无法被篡改和无法被伪造。从广义上来看，区块链式一系列计算机技术的利用模型，其包括了：存储和验证数据用到的链式数据结构、来保证数据传输和利用安全的密码学加密方式、来编程和操作数据的自动化脚本和智能合约，这是一种全">
@@ -351,7 +351,7 @@
 <p>
 <img src="/.com//02/12/基于区块链的成绩记录系统/pc1.png" title="This is an example image">
 <div align="center">![](基于区块链的成绩记录系统/pc1.png)</div>
-<image src="/images/pc1.png" alt="Smiley face" width="200" height="60">
+<image src="http://tva1.sinaimg.cn/large/0060lm7Tly1g5i462qpumj30ck0d93zz.jpg" alt="Smiley face" width="200" height="60">
 </image></p></li>
 <li><p><b>系统整体架构设计</b><br>此系统的架构设计综合了各方面的情况来考虑，首先，底层基于Hyperledgerfabric区块链网络来实现，其默认存储的数据状态是levelDB，考虑到要实现组合查询，将其替换为CouchDB。业务层主要利用Fabric-SDK-Go相应的一些API通过调用链来与账本数据进行交互，其交互过程涉及到Event Stream。在视图层的Controller接受业务层交互的结果，并将结果通过Web View层面反馈给用户。<br>所以整个架构是一个MVC（Model View Controller）模型架构[10]，Controller负责接收用户发来的请求，然后根据不同的请求调用业务层不同的函数，业务层根据接收到的请求调用链码中的不同函数进而实现对账本数据的操作，操作完成后逐层返回最终在客户端呈现，这部分利用GoWeb的模板语言来呈现给用户，具体架构设计图如图：</p>
 <p>
