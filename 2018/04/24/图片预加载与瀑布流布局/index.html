@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="CSS3,">
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.2">
+
+
+
+
+
+
+<meta name="description" content="使用图片预加载技术可以在页面打开前加载完成而省略多次请求部分直接调用缓存，能够提高用户体验，而瀑布流布局是目前较为火热的布局方式，结合流行的单页面站点，可以简化用户操作步骤，同样提升了用户体验，而两者又是相辅相成的。  图片预加载分为无序加载、有序加载和基于用户行为的预加载 通过CSS3和原生JS的方式分别实现瀑布流布局 瀑布流布局结合的是懒加载：当用户拖动滚动条时才发生加载行为  Github仓">
+<meta name="keywords" content="CSS3">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图片预加载与瀑布流布局">
+<meta property="og:url" content="http://yoursite.com/2018/04/24/图片预加载与瀑布流布局/index.html">
+<meta property="og:site_name" content="MuYun&#39;s Blog">
+<meta property="og:description" content="使用图片预加载技术可以在页面打开前加载完成而省略多次请求部分直接调用缓存，能够提高用户体验，而瀑布流布局是目前较为火热的布局方式，结合流行的单页面站点，可以简化用户操作步骤，同样提升了用户体验，而两者又是相辅相成的。  图片预加载分为无序加载、有序加载和基于用户行为的预加载 通过CSS3和原生JS的方式分别实现瀑布流布局 瀑布流布局结合的是懒加载：当用户拖动滚动条时才发生加载行为  Github仓">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-04-24T14:18:56.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="图片预加载与瀑布流布局">
+<meta name="twitter:description" content="使用图片预加载技术可以在页面打开前加载完成而省略多次请求部分直接调用缓存，能够提高用户体验，而瀑布流布局是目前较为火热的布局方式，结合流行的单页面站点，可以简化用户操作步骤，同样提升了用户体验，而两者又是相辅相成的。  图片预加载分为无序加载、有序加载和基于用户行为的预加载 通过CSS3和原生JS的方式分别实现瀑布流布局 瀑布流布局结合的是懒加载：当用户拖动滚动条时才发生加载行为  Github仓">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/24/图片预加载与瀑布流布局/">
+
+
+
+
+
+  <title>图片预加载与瀑布流布局 | MuYun's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <a href="https://github.com/Meow-starone"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">MuYun's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/24/图片预加载与瀑布流布局/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="暮云依稀">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MuYun's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">图片预加载与瀑布流布局</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-24T00:57:45+08:00">
+                2018-04-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>使用图片预加载技术可以在页面打开前加载完成而省略多次请求部分直接调用缓存，能够提高用户体验，而瀑布流布局是目前较为火热的布局方式，结合流行的单页面站点，可以简化用户操作步骤，同样提升了用户体验，而两者又是相辅相成的。</p>
+<ul>
+<li>图片预加载分为无序加载、有序加载和基于用户行为的预加载</li>
+<li>通过CSS3和原生JS的方式分别实现瀑布流布局</li>
+<li>瀑布流布局结合的是懒加载：当用户拖动滚动条时才发生加载行为</li>
+</ul>
+<h3 id="Github仓库地址"><a href="#Github仓库地址" class="headerlink" title="Github仓库地址"></a>Github仓库地址</h3><p><a href="https://github.com/Meow-starone/Preload-Waterfall-layout-TST" target="_blank" rel="noopener">https://github.com/Meow-starone/Preload-Waterfall-layout-TST</a></p>
+<h3 id="无序预加载"><a href="#无序预加载" class="headerlink" title="无序预加载"></a>无序预加载</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">var index = 0,</span><br><span class="line">  len = imgs.length;</span><br><span class="line">  count = 0;</span><br><span class="line">  <span class="variable">$progress</span> = $(<span class="string">'.progress'</span>);</span><br><span class="line">  </span><br><span class="line">  $.each(imgs,<span class="keyword">function</span>(i,src)&#123;</span><br><span class="line">var imgObj = new Image();</span><br><span class="line">  $(imgObj).on(<span class="string">'load error'</span>,<span class="function"><span class="title">function</span></span>()&#123;</span><br><span class="line">  <span class="variable">$progress</span>.html(Math.round((count+1)/len*100)+<span class="string">'%'</span>);</span><br><span class="line">  <span class="keyword">if</span>(count&gt;=len-1)&#123;</span><br><span class="line">  $(<span class="string">'.loading'</span>).hide();</span><br><span class="line">Document.title=<span class="string">'1/'</span>+len;</span><br><span class="line">  &#125;</span><br><span class="line">  count++;</span><br><span class="line">  &#125;);</span><br><span class="line">  imgObj.src = src;</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>通过调试器我们可以看到图片的加载是无序的：</p>
+<div align="center">![无序加载](http://p7p01p9vc.bkt.clouddn.com/preload-waterfall20171117001619157.png)</div>
+
+<h3 id="有序预加载"><a href="#有序预加载" class="headerlink" title="有序预加载"></a>有序预加载</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">load</span></span>() &#123;</span><br><span class="line">   	var imgObj = new Image();</span><br><span class="line"></span><br><span class="line">   	$(imgObj).on(<span class="string">'load error'</span>,<span class="function"><span class="title">function</span></span>()&#123;</span><br><span class="line">   		<span class="keyword">if</span> (count&gt;=len)&#123;</span><br><span class="line"></span><br><span class="line">   		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">   			load();</span><br><span class="line">   		&#125;</span><br><span class="line">   		count++;</span><br><span class="line">   	&#125;);</span><br><span class="line">   	imgObj.src = imgs[count];</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过图片加载进程图，我们可以知道图片加载是很有顺序的，在很多场景这是很实用的：</p>
+<div align="center">![有序加载](http://p7p01p9vc.bkt.clouddn.com/preload-waterfall20171117001545913.png)</div>
+
+<h3 id="CSS3实现瀑布流"><a href="#CSS3实现瀑布流" class="headerlink" title="CSS3实现瀑布流"></a>CSS3实现瀑布流</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#main&#123;</span></span><br><span class="line">	-webkit-column-width:297px;</span><br><span class="line">	-moz-column-width:297px;</span><br><span class="line">	-o-column-width:297px;</span><br><span class="line">	-ms-column-width:297px;</span><br><span class="line">&#125;</span><br><span class="line">.box&#123;</span><br><span class="line">	padding: 10px 0 0 15px;</span><br><span class="line">&#125;</span><br><span class="line">.pic&#123;</span><br><span class="line">	padding: 10px;</span><br><span class="line">	border: 1px solid <span class="comment">#ccc;</span></span><br><span class="line">	border-radius: 5px;</span><br><span class="line">	box-shadow: 0 0 5px <span class="comment">#ccc;</span></span><br><span class="line">	width: 260px;</span><br><span class="line">&#125;</span><br><span class="line">.pic img&#123;</span><br><span class="line">	display: block;</span><br><span class="line">	width: 260px;</span><br><span class="line">	height: auto;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="原生JS实现瀑布流"><a href="#原生JS实现瀑布流" class="headerlink" title="原生JS实现瀑布流"></a>原生JS实现瀑布流</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> waterfall(parent,box)&#123;</span><br><span class="line">	//取出main下box元素</span><br><span class="line">	var oParent = document.getElementById(parent);</span><br><span class="line">	var oBoxs=getByClass(oParent,box);</span><br><span class="line">	//计算整个页面显示的列数（页面宽/box宽）</span><br><span class="line">	var oBoxW = oBoxs[0].offsetWidth; </span><br><span class="line">	var cols = Math.floor(document.documentElement.clientWidth/oBoxW);</span><br><span class="line">	// console.log(cols);</span><br><span class="line">	//设置main的宽</span><br><span class="line">	oParent.style.cssText = <span class="string">'width:'</span>+oBoxW*cols+<span class="string">'px;margin:0 auto'</span>;</span><br><span class="line">	//存第一行图片的高度,之后为每列的高度</span><br><span class="line">	var hArr = [];</span><br><span class="line">	<span class="keyword">for</span>(var i = 0;i&lt;oBoxs.length;i++)&#123;</span><br><span class="line">		<span class="keyword">if</span>(i&lt;cols)&#123;</span><br><span class="line">			hArr.push(oBoxs[i].offsetHeight);</span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">			var minH = Math.min.apply(null,hArr);</span><br><span class="line">			var index = getMinhIndex(hArr,minH);</span><br><span class="line">			oBoxs[i].style.position = <span class="string">'absolute'</span>;</span><br><span class="line">			oBoxs[i].style.top = minH+<span class="string">'px'</span>;</span><br><span class="line">			oBoxs[i].style.left=oBoxW*index+<span class="string">'px'</span>;</span><br><span class="line">			//改变此列高度的值再做比较</span><br><span class="line">			hArr[index]+=oBoxs[i].offsetHeight;	</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	// console.log(hArr);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/CSS3/" rel="tag"># CSS3</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/15/PHP.Socket通信测试-包括客户端硬件层 /" rel="next" title="PHP.Socket通信测试-包括客户端硬件层">
+                <i class="fa fa-chevron-left"></i> PHP.Socket通信测试-包括客户端硬件层
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/02/基于Ethereum的简易投票Dapp/" rel="prev" title="基于Ethereum的简易投票Dapp">
+                基于Ethereum的简易投票Dapp <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/uploads/avatar.jpg" alt="暮云依稀">
+          <p class="site-author-name" itemprop="name">暮云依稀</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Meow-starone" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/mu-yun-yi-xi/activities" target="_blank" title="ZhiHu">
+                  
+                    <i class="fa fa-fw fa-star"></i>
+                  
+                    
+                      ZhiHu
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://mp.weixin.qq.com/mp/homepage?__biz=MzI2MzYxNDk3Nw==&hid=1&sn=b7f5c17fd721e784432bea6d64ab1c20&scene=18#wechat_redirect" target="_blank" title="WeChat">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                    
+                      WeChat
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=578090&auto=1&height=66"></iframe>
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Github仓库地址"><span class="nav-number">1.</span> <span class="nav-text">Github仓库地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#无序预加载"><span class="nav-number">2.</span> <span class="nav-text">无序预加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#有序预加载"><span class="nav-number">3.</span> <span class="nav-text">有序预加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CSS3实现瀑布流"><span class="nav-number">4.</span> <span class="nav-text">CSS3实现瀑布流</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原生JS实现瀑布流"><span class="nav-number">5.</span> <span class="nav-text">原生JS实现瀑布流</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        ﻿<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">暮云依稀</span>
+</div>
+
+
+<!--<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>-->
+
+
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站总访问量<span id="busuanzi_value_site_uv"></span>次
+</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/love.js"></script>
+</body>
+</html>
+
+
