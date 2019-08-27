@@ -102,7 +102,7 @@
 <meta property="og:site_name" content="MuYun&#39;s Blog">
 <meta property="og:description" content="修订记录   日期 修订 修改描述 撰写人 备注    2019-04-29 V1.0 文档建立，结构搭建 雷远 无   2019-05-02 V1.1 初稿，确定功能性需求 雷远 无   2019-05-03 V1.2 需求列表和功能逻辑补充 雷远 无   2019-05-11 V1.3 描述优化与结构优化 雷远 完成稿   背景以太坊主流Dapp3月份用户活跃度分析   以太坊平台上活跃度最高">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-08-23T16:36:17.404Z">
+<meta property="og:updated_time" content="2019-08-27T21:53:37.123Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="牛盾区块链钱包_一诺千金模块PRD">
 <meta name="twitter:description" content="修订记录   日期 修订 修改描述 撰写人 备注    2019-04-29 V1.0 文档建立，结构搭建 雷远 无   2019-05-02 V1.1 初稿，确定功能性需求 雷远 无   2019-05-03 V1.2 需求列表和功能逻辑补充 雷远 无   2019-05-11 V1.3 描述优化与结构优化 雷远 完成稿   背景以太坊主流Dapp3月份用户活跃度分析   以太坊平台上活跃度最高">
@@ -400,6 +400,19 @@
 <h4 id="产品功能"><a href="#产品功能" class="headerlink" title="产品功能"></a>产品功能</h4><h5 id="产品功能脑图"><a href="#产品功能脑图" class="headerlink" title="产品功能脑图"></a>产品功能脑图</h5><div align="center"><image src="http://tva1.sinaimg.cn/large/007X8olVly1g6950osy3bj30fn07vmxu.jpg"></image></div>
 
 <h5 id="需求列表"><a href="#需求列表" class="headerlink" title="需求列表"></a>需求列表</h5><div align="center"><image src="http://tva1.sinaimg.cn/large/007X8olVly1g6a30wv2r6j31760d2n8x.jpg"></image></div>
+
+<h5 id="首页"><a href="#首页" class="headerlink" title="首页"></a>首页</h5><p>一诺千金主界面，demo如下，通过牛盾导航界面进入。</p>
+<div align="center"><image src="http://tva1.sinaimg.cn/large/007X8olVly1g6ex1bu73lj30d00oek0d.jpg"></image></div>
+
+<div align="center"><image src="http://tva1.sinaimg.cn/large/007X8olVly1g6exmxaxe0j314w09wqa8.jpg"></image></div>
+
+<h6 id="许诺demo"><a href="#许诺demo" class="headerlink" title="许诺demo"></a>许诺demo</h6><div align="center"><image src="http://tva1.sinaimg.cn/large/007X8olVly1g6ey334ix8j30ky0wu418.jpg"></image></div>
+字段说明：<br>
+1.许诺内容：内容输入框，input的placeholder默认为“在这里许下你的诺言吧”，文本限制为40个字符。<br>
+2.许诺周期：单次完成指标：规定内打卡一次，每天：日期内不少于（）次。<br>
+3.截止日期：单次截止日期最晚不迟于本地时间+7，每天截止日期为次天+3～30。<br>
+4.监督人：选择好友列表，未选则为无。<br>
+5.支付承诺金：0～500牛盾币。
       
     </div>
     
@@ -599,7 +612,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#修订记录"><span class="nav-number">1.</span> <span class="nav-text">修订记录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#背景"><span class="nav-number">2.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#市场分析"><span class="nav-number">3.</span> <span class="nav-text">市场分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#市场规模"><span class="nav-number">3.1.</span> <span class="nav-text">市场规模</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#市场占有率"><span class="nav-number">3.2.</span> <span class="nav-text">市场占有率</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#总结"><span class="nav-number">3.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#用户分析和需求场景"><span class="nav-number">4.</span> <span class="nav-text">用户分析和需求场景</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#用户特征"><span class="nav-number">4.1.</span> <span class="nav-text">用户特征</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#使用时段分析"><span class="nav-number">4.2.</span> <span class="nav-text">使用时段分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#需求场景"><span class="nav-number">4.3.</span> <span class="nav-text">需求场景</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#产品功能"><span class="nav-number">5.</span> <span class="nav-text">产品功能</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#产品功能脑图"><span class="nav-number">5.1.</span> <span class="nav-text">产品功能脑图</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#需求列表"><span class="nav-number">5.2.</span> <span class="nav-text">需求列表</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#修订记录"><span class="nav-number">1.</span> <span class="nav-text">修订记录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#背景"><span class="nav-number">2.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#市场分析"><span class="nav-number">3.</span> <span class="nav-text">市场分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#市场规模"><span class="nav-number">3.1.</span> <span class="nav-text">市场规模</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#市场占有率"><span class="nav-number">3.2.</span> <span class="nav-text">市场占有率</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#总结"><span class="nav-number">3.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#用户分析和需求场景"><span class="nav-number">4.</span> <span class="nav-text">用户分析和需求场景</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#用户特征"><span class="nav-number">4.1.</span> <span class="nav-text">用户特征</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#使用时段分析"><span class="nav-number">4.2.</span> <span class="nav-text">使用时段分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#需求场景"><span class="nav-number">4.3.</span> <span class="nav-text">需求场景</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#产品功能"><span class="nav-number">5.</span> <span class="nav-text">产品功能</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#产品功能脑图"><span class="nav-number">5.1.</span> <span class="nav-text">产品功能脑图</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#需求列表"><span class="nav-number">5.2.</span> <span class="nav-text">需求列表</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#首页"><span class="nav-number">5.3.</span> <span class="nav-text">首页</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#许诺demo"><span class="nav-number">5.3.1.</span> <span class="nav-text">许诺demo</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
