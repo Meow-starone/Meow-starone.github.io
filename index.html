@@ -9,7 +9,7 @@
   
   <style>
     /* ---------------------------------- */
-    /* V23 关键帧动画 (100% 稳定) */
+    /* V25 关键帧动画 (100% 稳定) */
     /* ---------------------------------- */
     
     /* V10 极光流动 (保持稳定) */
@@ -47,7 +47,7 @@
     }
 
     /* ---------------------------------- */
-    /* V23 核心 CSS (V10 架构) */
+    /* V25 核心 CSS (V10 架构) */
     /* ---------------------------------- */
     
     /* V10 初始弹窗 (保持稳定) */
@@ -111,7 +111,7 @@
       box-shadow: 0 8px 20px rgba(255, 105, 180, 0.5);
     }
     
-    /* --- V23 华丽背景 (100% 安全) --- */
+    /* --- V25 华丽背景 (100% 安全) --- */
     body {
       margin: 0;
       padding: 0;
@@ -179,7 +179,7 @@
       opacity: 1; 
     }
 
-    /* V23 修复 (Req 3): 精细化 SVG */
+    /* V23 精细化 SVG (保持稳定) */
     #peppa-pig-svg {
       position: absolute;
       bottom: 15px; 
@@ -191,7 +191,6 @@
       pointer-events: none;
       filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); 
     }
-    /* V23 修复: 100% 精细化的样式 */
     #peppa-pig-svg .skin { fill: #FFDAB9; stroke: #E66A9B; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
     #peppa-pig-svg .dress { fill: #FF69B4; stroke: #E66A9B; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
     #peppa-pig-svg .eye { fill: white; stroke: #333; stroke-width: 1; }
@@ -204,7 +203,7 @@
 
 
     /* ---------------------------------- */
-    /* 场景二 (心意之墙) (V23 聚焦修复) */
+    /* 场景二 (心意之墙) (V24 聚焦修复) */
     /* ---------------------------------- */
     #popup-layer {
       position: fixed;
@@ -215,7 +214,7 @@
       display: none;  
       z-index: 900; 
       overflow: hidden;  
-      /* V23 修复: 遮罩层 (黑色背景) 100% 具有过渡效果 */
+      /* V23 遮罩过渡 (保持稳定) */
       transition: background-color 0.4s ease;
     }
     .popup-message {
@@ -236,9 +235,7 @@
       transform: translate(-50%, -50%) scale(0) rotate(0deg);
       opacity: 0;
       
-      /* V22 修复: 初始爆发 transition (0.8s) 
-         (JS 循环 和 JS 聚焦 将 100% 覆盖这个)
-      */
+      /* V23 初始爆发 (保持稳定) */
       transition: all 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
       z-index: 901; 
     }
@@ -249,7 +246,7 @@
       opacity: 0.8;  
     }
     
-    /* V20 稳定: :hover 永远在最上层 (99998) */
+    /* V20 :hover (保持稳定) */
     .popup-message:hover {
       opacity: 1;
       z-index: 99998 !important; 
@@ -257,28 +254,29 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
     
-    /* V23 修复 (Req 2): 遮罩 100% 生效 */
+    /* V23 遮罩 (保持稳定) */
     #popup-layer.is-focused {
       background-color: rgba(0, 0, 0, 0.3);
     }
+    
+    /* V24 修复 (Bug 1): 100% 修复“不一致” 和 “那么淡” */
     #popup-layer.is-focused .popup-message:not(.focused) {
-      /* V23 修复: 遮罩层下的卡片，过渡也需要同步 (0.4s) */
       transition: opacity 0.4s ease, transform 0.4s ease;
-      opacity: 0.05;
+      
+      /* V24 修复: 0.2 (修复 "那么淡") */
+      opacity: 0.2 !important; 
+      /* V24 修复: !important (修复 "不一致" Bug) */
+      
       pointer-events: none;  
     }
     
-    /* V23 修复 (Req 2): .focused 状态 100% 稳定 */
+    /* V23 聚焦 (保持稳定) */
     .popup-message.focused {
-      /* V23 修复: .focused 状态 *不* 定义 transition！
-         JS 将在添加此类 *之前* 100% 注入 transition 样式
-         这保证了 400ms 的响应速度
-      */
       top: 50% !important;  
       left: 50% !important;
       transform: translate(-50%, -50%) scale(1.2) rotate(0deg) !important;  
       opacity: 1;
-      z-index: 99999 !important; /* V20 稳定: 聚焦在最上层 (99999) */
+      z-index: 99999 !important; 
     }
     
     .popup-message .icon {
@@ -299,38 +297,27 @@
   <div class="bg-layer" id="bg-scene-1"></div>
   <div class="bg-layer" id="bg-scene-2">
     
-    <svg id="peppa-pig-svg" viewBox="-10 0 120 105" xmlns="http://www.w3.org/2000/svg">
+    <svg id="peppa-pig-svg" viewBox="-10 0 120 105" xmlns="http://www.w.org/2000/svg">
       <g id="peppa-v23">
         <path class="tail" d="M 68,85 Q 75,80 75,85 Q 75,90 68,85" />
-        
         <path class="skin" d="M 45,90 L 45,100" />
         <path class="skin" d="M 55,90 L 55,100" />
-        
         <ellipse class="shoes" cx="45" cy="100" rx="3" ry="2" />
         <ellipse class="shoes" cx="55" cy="100" rx="3" ry="2" />
-        
         <path class="dress" d="M 35,60 C 30,80 30,90 30,90 L 70,90 C 70,90 70,80 65,60 Z" />
-        
         <path class="skin" d="M 33,65 L 20,70" />
         <path class="skin" d="M 67,65 L 80,70" />
-
         <path class="skin" d="M 50,15 C 20,15 5,40 5,60 C 5,80 30,95 50,85 C 75,80 95,65 95,45 C 95,25 75,10 50,15 Z" />
-        
         <path class="skin" d="M 5,60 C -5,60 -5,50 5,50 C 15,50 15,60 5,60 Z" />
-        
         <path class="skin" d="M 40,15 C 35,5 30,15 30,15" />
         <path class="skin" d="M 50,12 C 55,2 60,12 60,12" />
-        
         <circle cx="42" cy="40" r="5" class="eye" />
         <circle cx="43" cy="40" r="2" class="pupil" />
         <circle cx="58" cy="40" r="5" class="eye" />
         <circle cx="59" cy="40" r="2" class="pupil" />
-        
         <circle cx="8" cy="55" r="2" class="nose-hole" />
         <circle cx="15" cy="55" r="2" class="nose-hole" />
-        
         <circle cx="75" cy="55" r="10" class="cheek" />
-        
         <path class="mouth" d="M 40,70 Q 50,75 60,70" />
       </g>
     </svg>
@@ -382,15 +369,11 @@
     // V20 Z-Index 仲裁器 (保持)
     let currentTopZ = 901;
     
-    /* V23 修复 (Req 1, 2): 
-      全局常量，用于 100% 稳定的“调度器” 和 “聚焦”
-    */
-    const MAX_CONCURRENT_RECYCLES = 3;  // "同一时间可以有两三张"
-    const RECYCLE_WORKER_SLEEP_MIN = 1000; // "执行间隔缩短" (1s)
-    const RECYCLE_WORKER_SLEEP_MAX = 2000; // "执行间隔缩短" (2s)
-    const RECYCLE_ANIM_DURATION = 2000;    // "动画速度保持" (2s fade-out, 2s fade-in)
-    
-    // V23 修复 (Req 2): 100% 保证聚焦速度为 400ms
+    /* V24 全局常量 (V23 保持稳定) */
+    const MAX_CONCURRENT_RECYCLES = 3;  
+    const RECYCLE_WORKER_SLEEP_MIN = 1000; 
+    const RECYCLE_WORKER_SLEEP_MAX = 2000; 
+    const RECYCLE_ANIM_DURATION = 2000;    
     const FOCUS_ANIM_DURATION = 400;
 
     // --- 2. 消息数据 (V15 语法已修复, 保持稳定) ---
@@ -433,7 +416,7 @@
       }
     }
 
-    // --- 4. 核心流程：点击按钮 (V23 修复) ---
+    // --- 4. 核心流程：点击按钮 (V23 启动 4.4s 爆发) ---
     if (confirmBtn && startBackdrop && popupLayer && bgScene1 && bgScene2) {
       
       confirmBtn.addEventListener('click', () => {
@@ -450,11 +433,10 @@
           bgScene1.classList.add('hidden');
           bgScene2.classList.add('visible');
 
-          // V23 修复 (Req 1): 启动 4.4s 爆发
+          // V23 启动 4.4s 爆发 (保持稳定)
           showMessagesBurst();
           
-          // V23 修复 (Req 1): 
-          // 100% 保证在 4.4s 爆发完成后，启动 V22 的“调度器”
+          // V23 启动调度器 (保持稳定)
           setTimeout(launchRecycleWorkers, 5000); // 4.4s + 0.6s buffer
 
         }, 500); 
@@ -466,7 +448,7 @@
       alert("网页加载失败了！(关键元素丢失) \n\n请刷新页面重试。");
     }
 
-    // --- 5. 华丽的“爆发”效果 (V23 修复) ---
+    // --- 5. 华丽的“爆发”效果 (V23 4.4s 爆发) ---
     const activeCards = []; 
     function showMessagesBurst() {
       if (!popupLayer) return;
@@ -487,7 +469,8 @@
           <div class="content">${msg.text}</div>
         `;
         
-        const randomTop = Math.random() * 80 + 10;
+        // V24 修复 (Bug 2): 初始爆发范围 10%-90% (保持稳定)
+        const randomTop = Math.random() * 80 + 10; 
         const randomLeft = Math.random() * 80 + 10;
         const randomRot = Math.random() * 40 - 20;
         
@@ -500,12 +483,9 @@
           toggleFocus(popup);
         });
         
-        /* V23 修复 (Req 1): "卡片出现的整体市场延长"
-          V22 (2.6s 错误): burstClump = 600ms, microDelay = 200ms
-          V23 (4.4s 修复): 恢复到 V21 的速度 (1000ms, 400ms)
-        */
-        const burstClump = (Math.floor(Math.random() * 5)) * 1000; // 0, 1000, 2000, 3000, 4000
-        const microDelay = Math.random() * 400; // 0-400ms
+        /* V23 4.4s 爆发 (保持稳定) */
+        const burstClump = (Math.floor(Math.random() * 5)) * 1000; 
+        const microDelay = Math.random() * 400; 
         const totalDelay = burstClump + microDelay; 
 
         setTimeout(() => {
@@ -520,9 +500,9 @@
       });
     }
     
-    // --- 6. 聚焦/取消聚焦 功能 (V23 修复) ---
+    // --- 6. 聚焦/取消聚焦 功能 (V23 400ms 修复) ---
     
-    // V23 修复 (Req 2): 100% 修复“点击过慢” 和 “无遮罩”
+    // V23 聚焦 (保持稳定)
     function toggleFocus(card) {
       
       // V22 中断逻辑 (保持稳定)
@@ -531,7 +511,6 @@
         clearTimeout(card.recycleTimer2);
         card.isRecycling = false;
         
-        // 立即重置卡片状态 (关闭 transition)
         card.style.transition = 'none'; 
         card.style.opacity = 0.8;
         card.style.transform = `translate(-50%, -50%) scale(1) rotate(${card.style.getPropertyValue('--final-rotate')})`;
@@ -541,13 +520,11 @@
       playSound(clickSound, 0.3);  
       const isAlreadyFocused = card.classList.contains('focused');
       
-      // 100% 先移除旧的 (V23 修复：removeFocus 内部已注入 400ms transition)
+      // V23 400ms 失焦 (保持稳定)
       removeFocus();
       
       if (!isAlreadyFocused) {
-        // V23 修复 (Req 2):
-        // 在添加 .focused *之前*，100% 强制注入 400ms 聚焦 transition
-        // 100% 解决 V22 "点击空闲卡片过慢" 的 Bug
+        // V23 400ms 聚焦 (保持稳定)
         card.style.transition = `all ${FOCUS_ANIM_DURATION/1000}s cubic-bezier(0.68, -0.55, 0.27, 1.55)`;
         
         card.classList.add('focused');
@@ -555,12 +532,12 @@
       }
     }
     
+    // V23 失焦 (保持稳定)
     function removeFocus() {
       const focusedCard = document.querySelector('.popup-message.focused');
       if (focusedCard) {
         
-        // V23 修复 (Req 2):
-        // 在移除 .focused *之前*，100% 强制注入 400ms 失焦 transition
+        // V23 400ms 失焦 (保持稳定)
         focusedCard.style.transition = `all ${FOCUS_ANIM_DURATION/1000}s cubic-bezier(0.68, -0.55, 0.27, 1.55)`;
         
         focusedCard.classList.remove('focused');
@@ -607,7 +584,7 @@
     // 立即执行粒子创建
     createParticles();
     
-    // --- 8. V22 卡片循环 *调度器* (保持稳定) ---
+    // --- 8. V24 (Bug 2 修复): 卡片循环 *调度器* ---
     
     // V22 启动器 (保持稳定)
     function launchRecycleWorkers() {
@@ -642,7 +619,7 @@
       const card = availableCards[Math.floor(Math.random() * availableCards.length)];
       card.isRecycling = true; // 100% 标记为“占用”
 
-      // V22 "执行动画" (保持稳定)
+      // V22 "执行动画"
       recycleCard(card);
 
       // V22 "计划下次" (保持稳定)
@@ -650,21 +627,24 @@
       setTimeout(() => recycleWorker(id), sleep);
     }
     
-    // V22 *单卡片* 动画 (100% 可中断) (保持稳定)
+    // V24 修复 (Bug 2): *单卡片* 动画
     function recycleCard(card) {
       
-      // V22 (Req 2): “动画速度保持” (2s 渐隐)
-      // V23 修复: 100% 使用 JS 设置 transition，不再依赖 CSS
+      // V23 JS 过渡 (保持稳定)
       card.style.transition = `opacity ${RECYCLE_ANIM_DURATION/1000}s ease-out, transform ${RECYCLE_ANIM_DURATION/1000}s ease-out`;
       card.style.opacity = 0;
       card.style.transform = 'translate(-50%, -50%) scale(0.8) rotate(var(--final-rotate))';
       
-      // V22 (Req 3): 存储 *可中断* 的定时器
+      // V22 可中断定时器 (保持稳定)
       card.recycleTimer1 = setTimeout(() => {
         // V20 Z-Index 仲裁器 (100% 稳定)
         card.style.zIndex = ++currentTopZ; 
         
-        const newTop = Math.random() * 40 + 10; 
+        /* V24 修复 (Bug 2): 100% 修复“集中在上面”
+         V23 (Buggy): newTop = Math.random() * 40 + 10; (10%-50%)
+         V24 (Fixed): newTop = Math.random() * 80 + 10; (10%-90%)
+        */
+        const newTop = Math.random() * 80 + 10; 
         const newLeft = Math.random() * 80 + 10;
         
         card.style.transition = 'none'; // 100% 先重置
@@ -675,13 +655,12 @@
         
         void card.offsetWidth;
         
-        // V22 (Req 2): “动画速度保持” (2s 渐显)
-        // V23 修复: 100% 使用 JS 设置 transition
+        // V23 JS 过渡 (保持稳定)
         card.style.transition = `opacity ${RECYCLE_ANIM_DURATION/1000}s ease-in, transform ${RECYCLE_ANIM_DURATION/1000}s ease-in`;
         card.style.opacity = 0.8;
         card.style.transform = 'translate(-50%, -50%) scale(1) rotate(var(--final-rotate))';
         
-        // V22 (Req 3): 存储 *可中断* 的第二个定时器
+        // V22 可中断定时器 (保持稳定)
         card.recycleTimer2 = setTimeout(() => {
           card.isRecycling = false; // 100% 标记为“空闲”
         }, RECYCLE_ANIM_DURATION);
@@ -689,4 +668,6 @@
       }, RECYCLE_ANIM_DURATION); 
     }
 
-  </script></body></html>
+  </script>
+  
+</body></html>
