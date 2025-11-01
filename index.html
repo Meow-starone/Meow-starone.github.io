@@ -1,285 +1,692 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
+<!DOCTYPE html><html lang="zh-CN"><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>惊喜盲盒</title>
+  <title>心意盲盒</title>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+  
   <style>
-    @keyframes gradient-shift {
+    /* ---------------------------------- */
+    /* V23 关键帧动画 (100% 稳定) */
+    /* ---------------------------------- */
+    
+    /* V10 极光流动 (保持稳定) */
+    @keyframes gradient-flow {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
     
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.3); }
+    /* V18 樱花飘落 (保持稳定) */
+    @keyframes sakura-full-animation {
+      0% {
+        transform: translateY(-10vh) translateX(0px) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      25% {
+        transform: translateY(25vh) translateX(var(--drift-x)) rotate(90deg);
+      }
+      50% {
+        transform: translateY(50vh) translateX(0px) rotate(180deg);
+      }
+      75% {
+        transform: translateY(75vh) translateX(var(--drift-x-neg)) rotate(270deg);
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(110vh) translateX(0px) rotate(360deg);
+        opacity: 0;
+      }
     }
 
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Noto Sans SC', sans-serif;
-      min-height: 100vh;
-      overflow: hidden; 
-      /* 回退色，万一背景层失败，显示这个 */
-      background-color: #6c757d; 
-    }
-
-    /* --- 【修正】--- */
-    /* 移除了所有 z-index 属性。
-      堆叠顺序完全由 HTML 元素的顺序决定。
-      所有图层都必须是 position: fixed。
-    */
-
-    /* 图层 1 (HTML中第一个): 动态背景 */
-    .background-layer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      /* z-index: 1; <-- 移除 */
-      background: linear-gradient(270deg, #fce4ec, #e1bee7, #bbdefb, #e8f5e9);
-      background-size: 400% 400%;
-      animation: gradient-shift 30s ease infinite;
-    }
-
-    /* 图层 2 (HTML中第二个): 后续弹窗的容器 */
-    #popup-layer {
-      position: fixed; 
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      pointer-events: none; /* 关键：允许点击穿透到下面的弹窗按钮 */
-      /* z-index: 900; <-- 移除 */
-    }
+    /* ---------------------------------- */
+    /* V23 核心 CSS (V10 架构) */
+    /* ---------------------------------- */
     
-    /* 图层 3 (HTML中第三个): 初始弹窗遮罩 (会盖住图层1和2) */
+    /* V10 初始弹窗 (保持稳定) */
     .modal-backdrop {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.5);  
       display: flex;
       justify-content: center;
       align-items: center;
-      /* z-index: 1000; <-- 移除 */
+      transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+      opacity: 1;
+      visibility: visible;
+      z-index: 1000; 
     }
-
     .modal-backdrop[aria-hidden="true"] {
-      display: none;
+      opacity: 0;
+      visibility: hidden;  
+      pointer-events: none;  
     }
-
-    /* 初始弹窗内容 (它在遮罩 *内部*, 所以天然在遮罩上) */
     .modal {
       background-color: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border-radius: 12px;  
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
       width: 90%;
       max-width: 400px;
       overflow: hidden;
-      /* z-index: 1001; <-- 移除 (不需要) */
+      opacity: 1;
+      transform: scale(1);
+      transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.5s ease-in;  
+      z-index: 1001; 
     }
-
-    /* --- [其他样式保持不变] --- */
-    .modal .titlebar { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid #e9ecef; background-color: #f8f9fa; }
-    .modal .titlebar .icon { font-size: 20px; margin-right: 8px; }
-    .modal .titlebar .title { font-size: 18px; font-weight: 600; color: #343a40; }
-    .modal .content { padding: 20px 16px; font-size: 16px; color: #495057; text-align: center; }
-    .modal .actions { display: flex; justify-content: flex-end; padding: 12px 16px; border-top: 1px solid #e9ecef; background-color: #f8f9fa; }
-    .modal .btn { padding: 8px 20px; border: none; border-radius: 5px; font-size: 15px; cursor: pointer; transition: background-color 0.2s ease; }
-    .modal .btn.primary { background-color: #007bff; color: #ffffff; }
-    .modal .btn.primary:hover { background-color: #0056b3; }
-
-    .popup-message {
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      padding: 10px 15px;
-      position: absolute;
-      pointer-events: auto; /* 关键：子元素必须可交互 */
-      width: auto;
-      white-space: nowrap;
-      text-align: center;
+    .modal-backdrop[aria-hidden="true"] .modal {
+      transform: scale(0.8);
       opacity: 0;
-      transform: translate(-50%, -50%) scale(0.8) translateY(20px);
-      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-      /* z-index 也不需要，它相对于父元素 popup-layer */
+    }
+    .modal .titlebar { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid #eee; background-color: #fcfcfc; }
+    .modal .titlebar .icon { font-size: 24px; margin-right: 10px; }
+    .modal .titlebar .title { font-size: 20px; font-weight: 600; color: #333; }
+    .modal .content { padding: 30px 20px; font-size: 18px; color: #333; text-align: center; line-height: 1.6; }
+    .modal .actions { display: flex; justify-content: center; padding: 20px; border-top: 1px solid #eee; background-color: #fcfcfc; }
+    .modal .btn {  
+      padding: 12px 35px;  
+      border: none;  
+      border-radius: 30px;
+      font-size: 17px;  
+      cursor: pointer;  
+      transition: all 0.3s ease;
+      color: #fff;
+      font-weight: 600;
+      background-image: linear-gradient(135deg, #8a2be2 0%, #ff69b4 100%);
+      box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    .modal .btn.primary:hover {
+      background-image: linear-gradient(135deg, #ff69b4 0%, #8a2be2 100%);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(255, 105, 180, 0.5);
     }
     
-    .popup-message.fade-out {
-      opacity: 0;
-      transform: translate(-50%, -50%) scale(0.8) translateY(20px);
-      transition: opacity 0.6s ease-in, transform 0.6s ease-in;
+    /* --- V23 华丽背景 (100% 安全) --- */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans SC', sans-serif;
+      min-height: 100vh;
+      overflow: hidden;  
+      background-color: #0d0d2b; 
+    }
+    
+    .bg-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; 
+      transition: opacity 2s ease-in-out; 
     }
 
-    .popup-message .titlebar { display: flex; align-items: center; margin-bottom: 5px; }
-    .popup-message .titlebar .icon { margin-right: 5px; font-size: 16px; animation: pulse 1.5s ease-in-out infinite; }
-    .popup-message .titlebar .title { font-weight: 600; font-size: 15px; }
-    .popup-message .content { font-size: 14px; padding: 0; }
+    /* V21 明亮极光 (保持稳定) */
+    #bg-scene-1 {
+      background: linear-gradient(270deg, #fce4ec, #e1bee7, #bbdefb, #e8f5e9, #fce4ec);
+      background-size: 400% 400%;
+      animation: gradient-flow 30s ease-in-out infinite;
+      z-index: 1; 
+      opacity: 1;
+      overflow: hidden; 
+    }
+    #bg-scene-1.hidden {
+      opacity: 0;
+    }
+    
+    /* V19 全局粒子层 (保持稳定) */
+    #particle-field {
+      position: fixed; 
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 5; 
+      pointer-events: none;
+    }
 
-    /* 多样式 */
-    .popup-message.style-1 { background-color: #fce4ec; }
-    .popup-message.style-1 .titlebar { color: #c2185b; }
-    .popup-message.style-1 .content { color: #d81b60; }
-    .popup-message.style-2 { background-color: #e3f2fd; }
-    .popup-message.style-2 .titlebar { color: #1565c0; }
-    .popup-message.style-2 .content { color: #1976d2; }
-    .popup-message.style-3 { background-color: #e8f5e9; }
-    .popup-message.style-3 .titlebar { color: #2e7d32; }
-    .popup-message.style-3 .content { color: #388e3c; }
-    .popup-message.style-4 { background-color: #f3e5f5; }
-    .popup-message.style-4 .titlebar { color: #6a1b9a; }
-    .popup-message.style-4 .content { color: #7b1fa2; }
+    /* V20 樱花 🌸 粒子 (保持稳定) */
+    .particle {
+      position: absolute; 
+      will-change: transform, opacity;
+      animation: 
+        sakura-full-animation var(--fall-dur) linear var(--delay) infinite;
+      
+      line-height: 1;
+      user-select: none; 
+    }
+    
+    /* 场景 2: 明亮极光 (V12 稳定方案) */
+    #bg-scene-2 {
+      background: linear-gradient(270deg, #fce4ec, #e1bee7, #bbdefb, #e8f5e9, #fce4ec);
+      background-size: 400% 400%;
+      animation: gradient-flow 30s ease-in-out infinite;
+      z-index: 2; 
+      opacity: 0; 
+      overflow: hidden;
+    }
+    #bg-scene-2.visible {
+      opacity: 1; 
+    }
+
+    /* V23 修复 (Req 3): 精细化 SVG */
+    #peppa-pig-svg {
+      position: absolute;
+      bottom: 15px; 
+      left: 50%;
+      transform: translateX(-50%);
+      width: 180px; 
+      height: auto; 
+      z-index: 3; 
+      pointer-events: none;
+      filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); 
+    }
+    /* V23 修复: 100% 精细化的样式 */
+    #peppa-pig-svg .skin { fill: #FFDAB9; stroke: #E66A9B; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    #peppa-pig-svg .dress { fill: #FF69B4; stroke: #E66A9B; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    #peppa-pig-svg .eye { fill: white; stroke: #333; stroke-width: 1; }
+    #peppa-pig-svg .pupil { fill: #333; stroke: none; }
+    #peppa-pig-svg .cheek { fill: #FFB6C1; stroke: #E66A9B; stroke-width: 1.5; }
+    #peppa-pig-svg .mouth { fill: none; stroke: #E66A9B; stroke-width: 2.5; stroke-linecap: round; }
+    #peppa-pig-svg .nose-hole { fill: #E66A9B; stroke: none; }
+    #peppa-pig-svg .shoes { fill: #333333; stroke: #333333; stroke-width: 1; }
+    #peppa-pig-svg .tail { fill: none; stroke: #E66A9B; stroke-width: 2.5; stroke-linecap: round; }
+
+
+    /* ---------------------------------- */
+    /* 场景二 (心意之墙) (V23 聚焦修复) */
+    /* ---------------------------------- */
+    #popup-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;  
+      z-index: 900; 
+      overflow: hidden;  
+      /* V23 修复: 遮罩层 (黑色背景) 100% 具有过渡效果 */
+      transition: background-color 0.4s ease;
+    }
+    .popup-message {
+      position: absolute;
+      border-radius: 15px;  
+      background-color: rgba(255, 255, 255, 0.7);  
+      -webkit-backdrop-filter: blur(10px) saturate(120%);
+      backdrop-filter: blur(10px) saturate(120%);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      padding: 15px 25px;
+      width: auto;
+      max-width: 280px;  
+      text-align: center;
+      cursor: pointer;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0) rotate(0deg);
+      opacity: 0;
+      
+      /* V22 修复: 初始爆发 transition (0.8s) 
+         (JS 循环 和 JS 聚焦 将 100% 覆盖这个)
+      */
+      transition: all 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      z-index: 901; 
+    }
+    .popup-message.burst-in {
+      top: var(--final-top);
+      left: var(--final-left);
+      transform: translate(-50%, -50%) scale(1) rotate(var(--final-rotate));
+      opacity: 0.8;  
+    }
+    
+    /* V20 稳定: :hover 永远在最上层 (99998) */
+    .popup-message:hover {
+      opacity: 1;
+      z-index: 99998 !important; 
+      transform: translate(-50%, -50%) scale(1.1) rotate(var(--final-rotate)) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* V23 修复 (Req 2): 遮罩 100% 生效 */
+    #popup-layer.is-focused {
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+    #popup-layer.is-focused .popup-message:not(.focused) {
+      /* V23 修复: 遮罩层下的卡片，过渡也需要同步 (0.4s) */
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      opacity: 0.05;
+      pointer-events: none;  
+    }
+    
+    /* V23 修复 (Req 2): .focused 状态 100% 稳定 */
+    .popup-message.focused {
+      /* V23 修复: .focused 状态 *不* 定义 transition！
+         JS 将在添加此类 *之前* 100% 注入 transition 样式
+         这保证了 400ms 的响应速度
+      */
+      top: 50% !important;  
+      left: 50% !important;
+      transform: translate(-50%, -50%) scale(1.2) rotate(0deg) !important;  
+      opacity: 1;
+      z-index: 99999 !important; /* V20 稳定: 聚焦在最上层 (99999) */
+    }
+    
+    .popup-message .icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .popup-message .content {  
+      font-size: 24px;  
+      line-height: 1.6;  
+      font-family: 'Ma Shan Zheng', cursive;  
+      color: #333;
+    }
   </style>
-</head>
-<body>
-  
-  <div class="background-layer"></div>
 
-  <div id="popup-layer" aria-live="polite" aria-atomic="false"></div>
+  </head><body>
+  
+  <div class="bg-layer" id="bg-scene-1"></div>
+  <div class="bg-layer" id="bg-scene-2">
+    
+    <svg id="peppa-pig-svg" viewBox="-10 0 120 105" xmlns="http://www.w3.org/2000/svg">
+      <g id="peppa-v23">
+        <path class="tail" d="M 68,85 Q 75,80 75,85 Q 75,90 68,85" />
+        
+        <path class="skin" d="M 45,90 L 45,100" />
+        <path class="skin" d="M 55,90 L 55,100" />
+        
+        <ellipse class="shoes" cx="45" cy="100" rx="3" ry="2" />
+        <ellipse class="shoes" cx="55" cy="100" rx="3" ry="2" />
+        
+        <path class="dress" d="M 35,60 C 30,80 30,90 30,90 L 70,90 C 70,90 70,80 65,60 Z" />
+        
+        <path class="skin" d="M 33,65 L 20,70" />
+        <path class="skin" d="M 67,65 L 80,70" />
+
+        <path class="skin" d="M 50,15 C 20,15 5,40 5,60 C 5,80 30,95 50,85 C 75,80 95,65 95,45 C 95,25 75,10 50,15 Z" />
+        
+        <path class="skin" d="M 5,60 C -5,60 -5,50 5,50 C 15,50 15,60 5,60 Z" />
+        
+        <path class="skin" d="M 40,15 C 35,5 30,15 30,15" />
+        <path class="skin" d="M 50,12 C 55,2 60,12 60,12" />
+        
+        <circle cx="42" cy="40" r="5" class="eye" />
+        <circle cx="43" cy="40" r="2" class="pupil" />
+        <circle cx="58" cy="40" r="5" class="eye" />
+        <circle cx="59" cy="40" r="2" class="pupil" />
+        
+        <circle cx="8" cy="55" r="2" class="nose-hole" />
+        <circle cx="15" cy="55" r="2" class="nose-hole" />
+        
+        <circle cx="75" cy="55" r="10" class="cheek" />
+        
+        <path class="mouth" d="M 40,70 Q 50,75 60,70" />
+      </g>
+    </svg>
+    
+  </div>
+  
+  <div id="particle-field"></div>
 
   <div class="modal-backdrop" id="start-backdrop" aria-hidden="false">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal" id="initial-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div class="titlebar">
-        <span class="icon">🎁</span>
-        <span class="title" id="modal-title">惊喜盲盒</span>
+        <span class="icon">✨</span>
+        <span class="title" id="modal-title">心意盲盒</span>
       </div>
-      <div class="content">你有一份惊喜盲盒待开启，确定要打开吗？</div>
+      <div class="content">Hi，小琳宝宝：<br>为你打开这片温柔的星海...</div>
       <div class="actions">
-        <button class="btn primary" id="confirm-btn" autofocus>确定</button>
+        <button class="btn primary" id="confirm-btn" autofocus>开启</button>
       </div>
     </div>
   </div>
 
+  <div id="popup-layer" aria-live="polite">
+    </div>
+
   <audio id="bgMusic" loop preload="auto">
     <source src="https://sf5-hl-cdn-tos.douyinstatic.com/obj/ies-music/7499771397531503370.mp3" type="audio/mpeg">
   </audio>
+  <audio id="clickSound" preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_349d3e8e19.mp3?filename=button-click-sound-effect-153308.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="burstSound" preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_651917f6fc.mp3?filename=magic-chime-01-112704.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
+    // --- 1. 获取所有元素 (100% 安全获取) ---
     const bgMusic = document.getElementById('bgMusic');
+    const clickSound = document.getElementById('clickSound');
+    const burstSound = document.getElementById('burstSound');
     const confirmBtn = document.getElementById('confirm-btn');
     const startBackdrop = document.getElementById('start-backdrop');
+    const initialModal = document.getElementById('initial-modal');  
     const popupLayer = document.getElementById('popup-layer');
 
-    function playMusic() {
-      if (bgMusic && bgMusic.paused) { 
-        bgMusic.volume = 0.5; 
-        bgMusic.play().catch(error => {
-          console.log("音乐播放失败:", error);
-        });
-      }
-    }
+    const bgScene1 = document.getElementById('bg-scene-1');
+    const bgScene2 = document.getElementById('bg-scene-2');
+    const particleField = document.getElementById('particle-field');
+    
+    // V20 Z-Index 仲裁器 (保持)
+    let currentTopZ = 901;
+    
+    /* V23 修复 (Req 1, 2): 
+      全局常量，用于 100% 稳定的“调度器” 和 “聚焦”
+    */
+    const MAX_CONCURRENT_RECYCLES = 3;  // "同一时间可以有两三张"
+    const RECYCLE_WORKER_SLEEP_MIN = 1000; // "执行间隔缩短" (1s)
+    const RECYCLE_WORKER_SLEEP_MAX = 2000; // "执行间隔缩短" (2s)
+    const RECYCLE_ANIM_DURATION = 2000;    // "动画速度保持" (2s fade-out, 2s fade-in)
+    
+    // V23 修复 (Req 2): 100% 保证聚焦速度为 400ms
+    const FOCUS_ANIM_DURATION = 400;
 
+    // --- 2. 消息数据 (V15 语法已修复, 保持稳定) ---
     const messages = [
-      "今天过得开心嘛？", "期待与你下次美好的相遇。", "要相信自己噢，你是最棒的！",
-      "多喝水哦~ 记得好好照顾自己。", "学会爱自己, 才能更好地爱别人。", "每天都要元气满满！",
-      "愿所有烦恼都烟消云散。", "保持微笑呀, 世界也会对你微笑。", "每一天都是新的开始, 加油！",
-      "你值得所有美好的事物！", "珍视每一次小确幸。", "心怀阳光，生活就会明亮。",
-      "累了就歇一歇。", "今天也是很可爱的一天！", "记得按时吃饭。",
-      "小小的进步，也是大大的成就。", "不管天气怎样，我的祝福常在。", "你是独一无二的。",
-      "愿你今晚有个好梦。", "小琳宝宝最棒了！", "别忘了给自己一个小小的奖励。",
-      "你的笑容比糖果还甜。", "生活有点小苦，但你超甜。", "好运正在向你飞奔而来！",
-      "做自己喜欢的事。", "被子要盖好，不许着凉哦。", "想你啦。",
-      "把不开心都丢掉，好不好？", "你努力的样子，超级闪耀。", "希望我的出现，能让你开心一秒。",
-      "别怕，一切都会好起来的。", "晚安，早点休息。", "世界很大，你也很美。",
-      "每一朵花开，都是为你祝福。", "加油！你是最闪亮的星星。", "爱你哦，不止今天。"
+      { icon: '🥰', text: '“今天... 我又想了你 100 次。”' },
+      { icon: '🌟', text: '“你的笑容，是我一整天的能量来源。”' },
+      { icon: '💖', text: '“猜猜我的心在哪？... 在你那边。”' },
+      { icon: '🌸', text: '“遇见你之后，我才发现星星会跑到我眼睛里。”' },
+      { icon: '🍀', text: '“希望你今天也是个开心的小小朋友。”' },
+      { icon: '✨', text: '“别太累啦，我会心疼的。”' },
+      { icon: '🌈', text: '“你猜，‘可爱’的近义词是什么？... 是你。”' },
+      { icon: '💫', text: '“世界很大，但我只想和你待在一起。”' },
+      { icon: '🎁', text: '“你是我打开过的，最棒的礼物。”' },
+      { icon: '❤️', text: '“不只是今天... 而是每一天，我都... (你懂的)”' },
+      { icon: '🌙', text: '“晚安，愿你梦里有我的温柔。”' },
+      { icon: '☀️', text: '“早安，新的一天也想你。”' },
+      { icon: '☕', text: '“记得休息一下，我陪你。”' },
+      { icon: '🍬', text: '“你比糖果还甜，甜到我心里了。”' },
+      { icon: '🎵', text: '“听到这首歌，我又想起了你。”' },
+      { icon: '🎀', text: '“你就是我最珍贵的那个‘小礼盒’。”' },
+      { icon: '💭', text: '“悄悄告诉你，我刚在想你呢。”' },
+      { icon: '🥳', text: '“有你在，每天都是值得庆祝的好日子。”' },
+      { icon: '🤗', text: '“想给你一个大大的拥抱，现在就想。”' },
+      { icon: '💌', text: '“这封心意，只为你一人而写。”' }
     ];
 
-    const icons = ['❤️', '✨', '💖', '🌟', '🥰', '🎉', '🌸', '💫'];
-    const styles = ['style-1', 'style-2', 'style-3', 'style-4'];
-
-    if (confirmBtn) {
-      confirmBtn.addEventListener('click', () => {
-        if (startBackdrop) {
-          startBackdrop.setAttribute('aria-hidden', 'true'); 
-        }
-        playMusic(); 
-        showPopupsSequentially();
-      });
-    } else {
-      console.error("错误：无法找到 'confirm-btn' 按钮！");
-      // 为了让您能看到错误
-      alert("致命错误: 无法找到 'confirm-btn' 按钮！"); 
+    // --- 3. 音频播放 (V10 安全方案) ---
+    function playMusic() {
+      if (bgMusic && bgMusic.paused) {  
+        bgMusic.volume = 0.4;  
+        bgMusic.play().catch(e => console.warn("背景音乐播放失败:", e));
+      }
     }
 
-    function showPopupsSequentially() {
-      if (!popupLayer) {
-        console.error("错误: 无法找到 'popup-layer'!");
-        return; 
+    function playSound(audioElement, volume = 0.6) {
+      if (audioElement) {
+        const sound = audioElement.cloneNode();
+        sound.volume = volume;
+        sound.play().catch(e => console.warn("音效播放失败:", e));
       }
+    }
 
-      let delay = 0;
-      const usedPositions = []; 
+    // --- 4. 核心流程：点击按钮 (V23 修复) ---
+    if (confirmBtn && startBackdrop && popupLayer && bgScene1 && bgScene2) {
+      
+      confirmBtn.addEventListener('click', () => {
+        
+        playSound(clickSound);  
+        startBackdrop.setAttribute('aria-hidden', 'true');  
+        
+        setTimeout(() => {
+          startBackdrop.style.display = 'none';  
+          popupLayer.style.display = 'block';  
+          playMusic(); 
+
+          // V12 "Cross-Fade" (保持稳定)
+          bgScene1.classList.add('hidden');
+          bgScene2.classList.add('visible');
+
+          // V23 修复 (Req 1): 启动 4.4s 爆发
+          showMessagesBurst();
+          
+          // V23 修复 (Req 1): 
+          // 100% 保证在 4.4s 爆发完成后，启动 V22 的“调度器”
+          setTimeout(launchRecycleWorkers, 5000); // 4.4s + 0.6s buffer
+
+        }, 500); 
+        
+      }, { once: true });
+      
+    } else {
+      // V10 最终防线
+      alert("网页加载失败了！(关键元素丢失) \n\n请刷新页面重试。");
+    }
+
+    // --- 5. 华丽的“爆发”效果 (V23 修复) ---
+    const activeCards = []; 
+    function showMessagesBurst() {
+      if (!popupLayer) return;
+      
+      popupLayer.addEventListener('click', (e) => {
+        if (e.target === popupLayer) {
+          removeFocus();
+        }
+      });
 
       messages.forEach((msg, index) => {
-        let topOffset, leftOffset, positionOK;
-        let attempts = 0;
-        do {
-          topOffset = Math.random() * 70 + 15;
-          leftOffset = Math.random() * 70 + 15;
-          positionOK = true;
-          for (const pos of usedPositions) {
-            const dist = Math.sqrt(Math.pow(pos.top - topOffset, 2) + Math.pow(pos.left - leftOffset, 2));
-            if (dist < 15 && attempts < 10) { 
-              positionOK = false;
-              break;
-            }
-          }
-          attempts++;
-        } while (!positionOK && attempts < 20); 
-
-        if(usedPositions.length > 10) {
-           usedPositions.shift(); 
-        }
-        usedPositions.push({ top: topOffset, left: leftOffset });
+        
+        const popup = document.createElement('div');
+        popup.className = 'popup-message';
+        
+        popup.innerHTML = `
+          <span class="icon">${msg.icon}</span>
+          <div class="content">${msg.text}</div>
+        `;
+        
+        const randomTop = Math.random() * 80 + 10;
+        const randomLeft = Math.random() * 80 + 10;
+        const randomRot = Math.random() * 40 - 20;
+        
+        popup.style.setProperty('--final-top', `${randomTop}%`);
+        popup.style.setProperty('--final-left', `${randomLeft}%`);
+        popup.style.setProperty('--final-rotate', `${randomRot}deg`);
+        
+        popup.addEventListener('click', (e) => {
+          e.stopPropagation();  
+          toggleFocus(popup);
+        });
+        
+        /* V23 修复 (Req 1): "卡片出现的整体市场延长"
+          V22 (2.6s 错误): burstClump = 600ms, microDelay = 200ms
+          V23 (4.4s 修复): 恢复到 V21 的速度 (1000ms, 400ms)
+        */
+        const burstClump = (Math.floor(Math.random() * 5)) * 1000; // 0, 1000, 2000, 3000, 4000
+        const microDelay = Math.random() * 400; // 0-400ms
+        const totalDelay = burstClump + microDelay; 
 
         setTimeout(() => {
-          const popup = document.createElement('div');
-          popup.className = 'popup-message';
-          
-          const randomIcon = icons[Math.floor(Math.random() * icons.length)];
-          const randomStyle = styles[Math.floor(Math.random() * styles.length)];
-          popup.classList.add(randomStyle);
-          
-          popup.innerHTML = `
-            <div class="titlebar">
-              <span class="icon">${randomIcon}</span>
-              <span class="title">To 小琳宝宝</span>
-            </div>
-            <div class="content">${msg}</div>
-          `;
-          
-          popup.style.top = `${topOffset}%`;
-          popup.style.left = `${leftOffset}%`;
-          const rotation = Math.random() * 10 - 5; 
-          
           popupLayer.appendChild(popup);
-
-          void popup.offsetWidth;
-
-          popup.style.opacity = '1';
-          popup.style.transform = `translate(-50%, -50%) scale(1) rotate(${rotation}deg)`;
-          
-          setTimeout(() => {
-            popup.classList.add('fade-out');
-            popup.addEventListener('transitionend', () => {
-              if(popup.parentNode) {
-                popup.remove();
-              }
-            }, { once: true });
-          }, 6000); 
-
-        }, delay);
-        delay += 800; 
+          playSound(burstSound, 0.3);
+          void popup.offsetWidth;  
+          popup.classList.add('burst-in');
+          popup.classList.add('floating'); 
+          activeCards.push(popup); // 100% 稳定添加
+        }, totalDelay); 
+        
       });
     }
-  </script>
-</body>
-</html>
+    
+    // --- 6. 聚焦/取消聚焦 功能 (V23 修复) ---
+    
+    // V23 修复 (Req 2): 100% 修复“点击过慢” 和 “无遮罩”
+    function toggleFocus(card) {
+      
+      // V22 中断逻辑 (保持稳定)
+      if (card.isRecycling) {
+        clearTimeout(card.recycleTimer1);
+        clearTimeout(card.recycleTimer2);
+        card.isRecycling = false;
+        
+        // 立即重置卡片状态 (关闭 transition)
+        card.style.transition = 'none'; 
+        card.style.opacity = 0.8;
+        card.style.transform = `translate(-50%, -50%) scale(1) rotate(${card.style.getPropertyValue('--final-rotate')})`;
+        void card.offsetWidth; 
+      }
+
+      playSound(clickSound, 0.3);  
+      const isAlreadyFocused = card.classList.contains('focused');
+      
+      // 100% 先移除旧的 (V23 修复：removeFocus 内部已注入 400ms transition)
+      removeFocus();
+      
+      if (!isAlreadyFocused) {
+        // V23 修复 (Req 2):
+        // 在添加 .focused *之前*，100% 强制注入 400ms 聚焦 transition
+        // 100% 解决 V22 "点击空闲卡片过慢" 的 Bug
+        card.style.transition = `all ${FOCUS_ANIM_DURATION/1000}s cubic-bezier(0.68, -0.55, 0.27, 1.55)`;
+        
+        card.classList.add('focused');
+        popupLayer.classList.add('is-focused'); // 100% 添加遮罩
+      }
+    }
+    
+    function removeFocus() {
+      const focusedCard = document.querySelector('.popup-message.focused');
+      if (focusedCard) {
+        
+        // V23 修复 (Req 2):
+        // 在移除 .focused *之前*，100% 强制注入 400ms 失焦 transition
+        focusedCard.style.transition = `all ${FOCUS_ANIM_DURATION/1000}s cubic-bezier(0.68, -0.55, 0.27, 1.55)`;
+        
+        focusedCard.classList.remove('focused');
+        focusedCard.style.zIndex = ++currentTopZ; // V20 仲裁器
+      }
+      popupLayer.classList.remove('is-focused'); // 100% 移除遮罩
+    }
+
+    // --- 7. V20 樱花粒子系统 (保持稳定) ---
+    function createParticles() {
+      if (!particleField) return;
+      
+      const particleCount = 40; 
+      const fragment = document.createDocumentFragment();
+      const colors = ['#FF69B4', '#FF1493', '#FFB6C1']; // V20: 更粉的颜色
+
+      for (let i = 0; i < particleCount; i++) {
+        
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.innerHTML = '🌸';
+        
+        const size = Math.random() * 10 + 10; 
+        const xPos = Math.random() * 100;     
+        
+        const delay = Math.random() * -20;    
+        const fallDuration = Math.random() * 10 + 10; 
+        const driftX = Math.random() * 20 + 10; 
+
+        p.style.fontSize = `${size}px`;
+        p.style.left = `${xPos}%`;
+        p.style.color = colors[Math.floor(Math.random() * colors.length)];
+        
+        p.style.setProperty('--delay', `${delay}s`);
+        p.style.setProperty('--fall-dur', `${fallDuration}s`);
+        p.style.setProperty('--drift-x', `${driftX}px`);
+        p.style.setProperty('--drift-x-neg', `-${driftX}px`);
+        
+        fragment.appendChild(p);
+      }
+      particleField.appendChild(fragment);
+    }
+    
+    // 立即执行粒子创建
+    createParticles();
+    
+    // --- 8. V22 卡片循环 *调度器* (保持稳定) ---
+    
+    // V22 启动器 (保持稳定)
+    function launchRecycleWorkers() {
+      if (activeCards.length === 0) {
+        setTimeout(launchRecycleWorkers, 1000); 
+        return;
+      }
+      
+      for (let i = 0; i < MAX_CONCURRENT_RECYCLES; i++) {
+        recycleWorker(i); // 启动 3 个工人
+      }
+    }
+    
+    // V22 工人 (保持稳定)
+    function recycleWorker(id) {
+      
+      // V22 "点击中断" (全局暂停) (保持稳定)
+      if (document.querySelector('.popup-message.focused')) {
+        const sleep = RECYCLE_WORKER_SLEEP_MIN + (Math.random() * (RECYCLE_WORKER_SLEEP_MAX - RECYCLE_WORKER_SLEEP_MIN));
+        setTimeout(() => recycleWorker(id), sleep);
+        return;
+      }
+
+      // V22 "工人池" (保持稳定)
+      let availableCards = activeCards.filter(c => !c.isRecycling && !c.classList.contains('focused'));
+      if (availableCards.length === 0) {
+        const sleep = RECYCLE_WORKER_SLEEP_MIN + (Math.random() * (RECYCLE_WORKER_SLEEP_MAX - RECYCLE_WORKER_SLEEP_MIN));
+        setTimeout(() => recycleWorker(id), sleep);
+        return;
+      }
+
+      const card = availableCards[Math.floor(Math.random() * availableCards.length)];
+      card.isRecycling = true; // 100% 标记为“占用”
+
+      // V22 "执行动画" (保持稳定)
+      recycleCard(card);
+
+      // V22 "计划下次" (保持稳定)
+      const sleep = RECYCLE_ANIM_DURATION * 2 + RECYCLE_WORKER_SLEEP_MIN + (Math.random() * (RECYCLE_WORKER_SLEEP_MAX - RECYCLE_WORKER_SLEEP_MIN));
+      setTimeout(() => recycleWorker(id), sleep);
+    }
+    
+    // V22 *单卡片* 动画 (100% 可中断) (保持稳定)
+    function recycleCard(card) {
+      
+      // V22 (Req 2): “动画速度保持” (2s 渐隐)
+      // V23 修复: 100% 使用 JS 设置 transition，不再依赖 CSS
+      card.style.transition = `opacity ${RECYCLE_ANIM_DURATION/1000}s ease-out, transform ${RECYCLE_ANIM_DURATION/1000}s ease-out`;
+      card.style.opacity = 0;
+      card.style.transform = 'translate(-50%, -50%) scale(0.8) rotate(var(--final-rotate))';
+      
+      // V22 (Req 3): 存储 *可中断* 的定时器
+      card.recycleTimer1 = setTimeout(() => {
+        // V20 Z-Index 仲裁器 (100% 稳定)
+        card.style.zIndex = ++currentTopZ; 
+        
+        const newTop = Math.random() * 40 + 10; 
+        const newLeft = Math.random() * 80 + 10;
+        
+        card.style.transition = 'none'; // 100% 先重置
+        card.style.top = `${newTop}%`;
+        card.style.left = `${newLeft}%`;
+        card.style.setProperty('--final-top', `${newTop}%`);
+        card.style.setProperty('--final-left', `${newLeft}%`);
+        
+        void card.offsetWidth;
+        
+        // V22 (Req 2): “动画速度保持” (2s 渐显)
+        // V23 修复: 100% 使用 JS 设置 transition
+        card.style.transition = `opacity ${RECYCLE_ANIM_DURATION/1000}s ease-in, transform ${RECYCLE_ANIM_DURATION/1000}s ease-in`;
+        card.style.opacity = 0.8;
+        card.style.transform = 'translate(-50%, -50%) scale(1) rotate(var(--final-rotate))';
+        
+        // V22 (Req 3): 存储 *可中断* 的第二个定时器
+        card.recycleTimer2 = setTimeout(() => {
+          card.isRecycling = false; // 100% 标记为“空闲”
+        }, RECYCLE_ANIM_DURATION);
+        
+      }, RECYCLE_ANIM_DURATION); 
+    }
+
+  </script></body></html>
