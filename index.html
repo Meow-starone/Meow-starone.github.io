@@ -15,9 +15,6 @@
       background-color: #6c757d; /* 灰色背景 */
       min-height: 100vh;
       overflow: hidden; /* 防止滚动 */
-      /* * **修正：** 移除了 display: flex, justify-content, 和 align-items.
-       * 这些属性与 position: fixed 的 .modal-backdrop 冲突，导致其不显示。
-       */
     }
 
     #app {
@@ -125,7 +122,6 @@
       width: auto; /* 内容自适应 */
       white-space: nowrap; /* 不换行 */
       text-align: center;
-      /* 初始状态由JS设置 (opacity: 0, transform: ...) */
     }
     .popup-message .titlebar {
         display: flex;
@@ -156,7 +152,7 @@
           <span class="icon">🎁</span>
           <span class="title" id="modal-title">惊喜盲盒</span>
         </div>
-        <div class="content">您有一份惊喜盲盒待开启，确定要打开吗？</div>
+        <div class="content">亲爱的，您有一份惊喜盲盒待开启，确定要打开吗？</div>
         <div class="actions">
           <button class="btn primary" id="confirm-btn" autofocus>确定</button>
         </div>
@@ -177,25 +173,25 @@
       const startBackdrop = document.getElementById('start-backdrop');
       const popupLayer = document.getElementById('popup-layer');
 
-      // 自动播放音乐
       function playMusic() {
-        if (bgMusic.paused) { // 检查是否已在播放
+        if (bgMusic.paused) { 
           bgMusic.volume = 0.5; 
           bgMusic.play().catch(error => {
             console.log("音乐自动播放失败，尝试用户交互后播放:", error);
-            // 备用方案：在用户第一次交互（点击）时播放
             document.body.addEventListener('click', () => {
               if (bgMusic.paused) {
                 bgMusic.play().catch(e => console.log("再次播放失败:", e));
               }
-            }, { once: true }); // {once: true} 确保此事件只触发一次
+            }, { once: true }); 
           });
         }
       }
 
       playMusic();
 
+      // **更新：** 扩展到36条文案
       const messages = [
+        // 原有的 12 条
         "今天过得开心嘛？",
         "期待与你下次美好的相遇。",
         "要相信自己噢，你是最棒的！",
@@ -207,18 +203,44 @@
         "每一天都是新的开始, 加油！",
         "你值得所有美好的事物！",
         "珍视每一次小确幸，它们让生活更甜。",
-        "心怀阳光，生活就会明亮。"
+        "心怀阳光，生活就会明亮。",
+        
+        // 新增的 24 条
+        "累了就歇一歇，不要太勉强自己。",
+        "今天也是很可爱的一天！",
+        "记得按时吃饭，胃要好好养着。",
+        "小小的进步，也是大大的成就。",
+        "不管天气怎样，我的祝福常在。",
+        "你是独一无二的，要为自己骄傲。",
+        "愿你今晚有个好梦。",
+        "小琳宝宝最棒了！",
+        "别忘了给自己一个小小的奖励。",
+        "你的笑容比糖果还甜。",
+        "生活有点小苦，但你超甜。",
+        "好运正在向你飞奔而来！",
+        "做自己喜欢的事，就是最好的放松。",
+        "被子要盖好，不许着凉哦。",
+        "想你啦，虽然我只是个弹窗。",
+        "把不开心都丢掉，好不好？",
+        "你努力的样子，真的超级闪耀。",
+        "希望我的出现，能让你开心一秒。",
+        "别怕，一切都会好起来的。",
+        "晚安，早点休息。",
+        "世界很大，你也很美。",
+        "每一朵花开，都是为你祝福。",
+        "加油！你是最闪亮的星星。",
+        "爱你哦，不止今天。"
       ];
 
       confirmBtn.addEventListener('click', () => {
         startBackdrop.setAttribute('aria-hidden', 'true'); 
-        playMusic(); // 确保音乐在用户交互后播放
+        playMusic(); 
         showPopupsSequentially();
       });
 
       function showPopupsSequentially() {
         let delay = 0;
-        const usedPositions = []; // 用于防止弹窗重叠
+        const usedPositions = []; 
 
         messages.forEach((msg, index) => {
           
@@ -226,15 +248,13 @@
           let attempts = 0;
 
           do {
-            // 中心点限制在 15% 到 85% 的范围内
             topOffset = Math.random() * 70 + 15;  // 范围: 15% to 85%
             leftOffset = Math.random() * 70 + 15; // 范围: 15% to 85%
             
             positionOK = true;
-            // 检查与已使用位置的距离，避免太近
             for (const pos of usedPositions) {
               const dist = Math.sqrt(Math.pow(pos.top - topOffset, 2) + Math.pow(pos.left - leftOffset, 2));
-              if (dist < 15) { // 如果中心点距离小于15%
+              if (dist < 15) { // 避免中心点太近
                 positionOK = false;
                 break;
               }
@@ -242,6 +262,7 @@
             attempts++;
           } while (!positionOK && attempts < 10);
 
+          // 即使尝试10次失败，也添加最后一个位置，避免死循环
           usedPositions.push({ top: topOffset, left: leftOffset });
 
           setTimeout(() => {
@@ -255,25 +276,19 @@
               <div class="content">${msg}</div>
             `;
             
-            // 1. 设置最终位置
             popup.style.top = `${topOffset}%`;
             popup.style.left = `${leftOffset}%`;
             
-            // 2. 设置动画初始状态（透明、缩小、下移）
-            const rotation = Math.random() * 10 - 5; // 随机 -5 到 5 度
+            const rotation = Math.random() * 10 - 5; 
             popup.style.transform = `translate(-50%, -50%) scale(0.8) translateY(20px)`;
             popup.style.opacity = '0';
             popup.style.zIndex = 10 + index;
-            
-            // 3. 定义动画过渡
             popup.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
             
             popupLayer.appendChild(popup);
 
-            // 4. 强制浏览器渲染初始状态 (重要技巧)
-            void popup.offsetWidth;
+            void popup.offsetWidth; // 强制回流
 
-            // 5. 设置动画最终状态（触发过渡）
             popup.style.opacity = '1';
             popup.style.transform = `translate(-50%, -50%) scale(1) rotate(${rotation}deg)`;
 
