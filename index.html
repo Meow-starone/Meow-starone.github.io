@@ -8,158 +8,154 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+    }
+
     body {
       margin: 0;
       padding: 0;
       font-family: 'Noto Sans SC', sans-serif;
-      background-color: #6c757d; /* 灰色背景 */
       min-height: 100vh;
-      overflow: hidden; /* 防止滚动 */
+      overflow: hidden; 
+      /* 回退色，万一背景层失败，显示这个 */
+      background-color: #6c757d; 
     }
 
-    #app {
-      width: 100%;
-      height: 100%;
-    }
+    /* --- 【修正】--- */
+    /* 移除了所有 z-index 属性。
+      堆叠顺序完全由 HTML 元素的顺序决定。
+      所有图层都必须是 position: fixed。
+    */
 
-    /* Modal Backdrop */
-    .modal-backdrop {
-      position: fixed; /* 固定定位，相对视口 */
+    /* 图层 1 (HTML中第一个): 动态背景 */
+    .background-layer {
+      position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
-      display: flex; /* 使用 flex 来居中 .modal */
+      /* z-index: 1; <-- 移除 */
+      background: linear-gradient(270deg, #fce4ec, #e1bee7, #bbdefb, #e8f5e9);
+      background-size: 400% 400%;
+      animation: gradient-shift 30s ease infinite;
+    }
+
+    /* 图层 2 (HTML中第二个): 后续弹窗的容器 */
+    #popup-layer {
+      position: fixed; 
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none; /* 关键：允许点击穿透到下面的弹窗按钮 */
+      /* z-index: 900; <-- 移除 */
+    }
+    
+    /* 图层 3 (HTML中第三个): 初始弹窗遮罩 (会盖住图层1和2) */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 1000;
+      /* z-index: 1000; <-- 移除 */
     }
 
     .modal-backdrop[aria-hidden="true"] {
       display: none;
     }
 
-    /* Modal */
+    /* 初始弹窗内容 (它在遮罩 *内部*, 所以天然在遮罩上) */
     .modal {
       background-color: #ffffff;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      width: 90%; /* 手机H5适配 */
-      max-width: 400px; /* 桌面端最大宽度 */
+      width: 90%;
+      max-width: 400px;
       overflow: hidden;
+      /* z-index: 1001; <-- 移除 (不需要) */
     }
 
-    .modal .titlebar {
-      display: flex;
-      align-items: center;
-      padding: 12px 16px;
-      border-bottom: 1px solid #e9ecef;
-      background-color: #f8f9fa;
-    }
-
-    .modal .titlebar .icon {
-      font-size: 20px;
-      margin-right: 8px;
-    }
-
-    .modal .titlebar .title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #343a40;
-    }
-
-    .modal .content {
-      padding: 20px 16px;
-      font-size: 16px;
-      color: #495057;
-      text-align: center;
-    }
-
-    .modal .actions {
-      display: flex;
-      justify-content: flex-end;
-      padding: 12px 16px;
-      border-top: 1px solid #e9ecef;
-      background-color: #f8f9fa;
-    }
-
-    .modal .btn {
-      padding: 8px 20px;
-      border: none;
-      border-radius: 5px;
-      font-size: 15px;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-
-    .modal .btn.primary {
-      background-color: #007bff;
-      color: #ffffff;
-    }
-
-    .modal .btn.primary:hover {
-      background-color: #0056b3;
-    }
-
-    /* Popup Layer for multiple popups */
-    #popup-layer {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      pointer-events: none; /* 允许点击穿透 */
-    }
+    /* --- [其他样式保持不变] --- */
+    .modal .titlebar { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid #e9ecef; background-color: #f8f9fa; }
+    .modal .titlebar .icon { font-size: 20px; margin-right: 8px; }
+    .modal .titlebar .title { font-size: 18px; font-weight: 600; color: #343a40; }
+    .modal .content { padding: 20px 16px; font-size: 16px; color: #495057; text-align: center; }
+    .modal .actions { display: flex; justify-content: flex-end; padding: 12px 16px; border-top: 1px solid #e9ecef; background-color: #f8f9fa; }
+    .modal .btn { padding: 8px 20px; border: none; border-radius: 5px; font-size: 15px; cursor: pointer; transition: background-color 0.2s ease; }
+    .modal .btn.primary { background-color: #007bff; color: #ffffff; }
+    .modal .btn.primary:hover { background-color: #0056b3; }
 
     .popup-message {
-      background-color: #fce4ec; /* 粉色系背景 (匹配截图) */
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       padding: 10px 15px;
-      position: absolute; /* 绝对定位，由JS控制 */
-      pointer-events: auto; /* 弹窗本身可交互 */
-      width: auto; /* 内容自适应 */
-      white-space: nowrap; /* 不换行 */
+      position: absolute;
+      pointer-events: auto; /* 关键：子元素必须可交互 */
+      width: auto;
+      white-space: nowrap;
       text-align: center;
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.8) translateY(20px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+      /* z-index 也不需要，它相对于父元素 popup-layer */
     }
-    .popup-message .titlebar {
-        display: flex;
-        align-items: center;
-        margin-bottom: 5px;
-        color: #c2185b; /* 标题颜色 */
+    
+    .popup-message.fade-out {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.8) translateY(20px);
+      transition: opacity 0.6s ease-in, transform 0.6s ease-in;
     }
-    .popup-message .titlebar .icon {
-        margin-right: 5px;
-        font-size: 16px;
-    }
-    .popup-message .titlebar .title {
-        font-weight: 600;
-        font-size: 15px;
-    }
-    .popup-message .content {
-        font-size: 14px;
-        color: #d81b60; /* 深粉色文字 */
-        padding: 0; 
-    }
+
+    .popup-message .titlebar { display: flex; align-items: center; margin-bottom: 5px; }
+    .popup-message .titlebar .icon { margin-right: 5px; font-size: 16px; animation: pulse 1.5s ease-in-out infinite; }
+    .popup-message .titlebar .title { font-weight: 600; font-size: 15px; }
+    .popup-message .content { font-size: 14px; padding: 0; }
+
+    /* 多样式 */
+    .popup-message.style-1 { background-color: #fce4ec; }
+    .popup-message.style-1 .titlebar { color: #c2185b; }
+    .popup-message.style-1 .content { color: #d81b60; }
+    .popup-message.style-2 { background-color: #e3f2fd; }
+    .popup-message.style-2 .titlebar { color: #1565c0; }
+    .popup-message.style-2 .content { color: #1976d2; }
+    .popup-message.style-3 { background-color: #e8f5e9; }
+    .popup-message.style-3 .titlebar { color: #2e7d32; }
+    .popup-message.style-3 .content { color: #388e3c; }
+    .popup-message.style-4 { background-color: #f3e5f5; }
+    .popup-message.style-4 .titlebar { color: #6a1b9a; }
+    .popup-message.style-4 .content { color: #7b1fa2; }
   </style>
 </head>
 <body>
-  <div id="app">
-    <div class="modal-backdrop" id="start-backdrop" aria-hidden="false">
-      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <div class="titlebar">
-          <span class="icon">🎁</span>
-          <span class="title" id="modal-title">惊喜盲盒</span>
-        </div>
-        <div class="content">亲爱的，您有一份惊喜盲盒待开启，确定要打开吗？</div>
-        <div class="actions">
-          <button class="btn primary" id="confirm-btn" autofocus>确定</button>
-        </div>
+  
+  <div class="background-layer"></div>
+
+  <div id="popup-layer" aria-live="polite" aria-atomic="false"></div>
+
+  <div class="modal-backdrop" id="start-backdrop" aria-hidden="false">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="titlebar">
+        <span class="icon">🎁</span>
+        <span class="title" id="modal-title">惊喜盲盒</span>
+      </div>
+      <div class="content">亲爱的，您有一份惊喜盲盒待开启，确定要打开吗？</div>
+      <div class="actions">
+        <button class="btn primary" id="confirm-btn" autofocus>确定</button>
       </div>
     </div>
-    
-    <div id="popup-layer" aria-live="polite" aria-atomic="false"></div>
   </div>
 
   <audio id="bgMusic" loop preload="auto">
@@ -167,136 +163,123 @@
   </audio>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const bgMusic = document.getElementById('bgMusic');
-      const confirmBtn = document.getElementById('confirm-btn');
-      const startBackdrop = document.getElementById('start-backdrop');
-      const popupLayer = document.getElementById('popup-layer');
+    const bgMusic = document.getElementById('bgMusic');
+    const confirmBtn = document.getElementById('confirm-btn');
+    const startBackdrop = document.getElementById('start-backdrop');
+    const popupLayer = document.getElementById('popup-layer');
 
-      function playMusic() {
-        if (bgMusic.paused) { 
-          bgMusic.volume = 0.5; 
-          bgMusic.play().catch(error => {
-            console.log("音乐自动播放失败，尝试用户交互后播放:", error);
-            document.body.addEventListener('click', () => {
-              if (bgMusic.paused) {
-                bgMusic.play().catch(e => console.log("再次播放失败:", e));
-              }
-            }, { once: true }); 
-          });
-        }
+    function playMusic() {
+      if (bgMusic && bgMusic.paused) { 
+        bgMusic.volume = 0.5; 
+        bgMusic.play().catch(error => {
+          console.log("音乐播放失败:", error);
+        });
       }
+    }
 
-      playMusic();
+    const messages = [
+      "今天过得开心嘛？", "期待与你下次美好的相遇。", "要相信自己噢，你是最棒的！",
+      "多喝水哦~ 记得好好照顾自己。", "学会爱自己, 才能更好地爱别人。", "每天都要元气满满！",
+      "愿所有烦恼都烟消云散。", "保持微笑呀, 世界也会对你微笑。", "每一天都是新的开始, 加油！",
+      "你值得所有美好的事物！", "珍视每一次小确幸。", "心怀阳光，生活就会明亮。",
+      "累了就歇一歇。", "今天也是很可爱的一天！", "记得按时吃饭。",
+      "小小的进步，也是大大的成就。", "不管天气怎样，我的祝福常在。", "你是独一无二的。",
+      "愿你今晚有个好梦。", "小琳宝宝最棒了！", "别忘了给自己一个小小的奖励。",
+      "你的笑容比糖果还甜。", "生活有点小苦，但你超甜。", "好运正在向你飞奔而来！",
+      "做自己喜欢的事。", "被子要盖好，不许着凉哦。", "想你啦。",
+      "把不开心都丢掉，好不好？", "你努力的样子，超级闪耀。", "希望我的出现，能让你开心一秒。",
+      "别怕，一切都会好起来的。", "晚安，早点休息。", "世界很大，你也很美。",
+      "每一朵花开，都是为你祝福。", "加油！你是最闪亮的星星。", "爱你哦，不止今天。"
+    ];
 
-      // **更新：** 扩展到36条文案
-      const messages = [
-        // 原有的 12 条
-        "今天过得开心嘛？",
-        "期待与你下次美好的相遇。",
-        "要相信自己噢，你是最棒的！",
-        "多喝水哦~ 记得好好照顾自己。",
-        "学会爱自己, 才能更好地爱别人。",
-        "每天都要元气满满！",
-        "愿所有烦恼都烟消云散。",
-        "保持微笑呀, 世界也会对你微笑。",
-        "每一天都是新的开始, 加油！",
-        "你值得所有美好的事物！",
-        "珍视每一次小确幸，它们让生活更甜。",
-        "心怀阳光，生活就会明亮。",
-        
-        // 新增的 24 条
-        "累了就歇一歇，不要太勉强自己。",
-        "今天也是很可爱的一天！",
-        "记得按时吃饭，胃要好好养着。",
-        "小小的进步，也是大大的成就。",
-        "不管天气怎样，我的祝福常在。",
-        "你是独一无二的，要为自己骄傲。",
-        "愿你今晚有个好梦。",
-        "小琳宝宝最棒了！",
-        "别忘了给自己一个小小的奖励。",
-        "你的笑容比糖果还甜。",
-        "生活有点小苦，但你超甜。",
-        "好运正在向你飞奔而来！",
-        "做自己喜欢的事，就是最好的放松。",
-        "被子要盖好，不许着凉哦。",
-        "想你啦，虽然我只是个弹窗。",
-        "把不开心都丢掉，好不好？",
-        "你努力的样子，真的超级闪耀。",
-        "希望我的出现，能让你开心一秒。",
-        "别怕，一切都会好起来的。",
-        "晚安，早点休息。",
-        "世界很大，你也很美。",
-        "每一朵花开，都是为你祝福。",
-        "加油！你是最闪亮的星星。",
-        "爱你哦，不止今天。"
-      ];
+    const icons = ['❤️', '✨', '💖', '🌟', '🥰', '🎉', '🌸', '💫'];
+    const styles = ['style-1', 'style-2', 'style-3', 'style-4'];
 
+    if (confirmBtn) {
       confirmBtn.addEventListener('click', () => {
-        startBackdrop.setAttribute('aria-hidden', 'true'); 
+        if (startBackdrop) {
+          startBackdrop.setAttribute('aria-hidden', 'true'); 
+        }
         playMusic(); 
         showPopupsSequentially();
       });
+    } else {
+      console.error("错误：无法找到 'confirm-btn' 按钮！");
+      // 为了让您能看到错误
+      alert("致命错误: 无法找到 'confirm-btn' 按钮！"); 
+    }
 
-      function showPopupsSequentially() {
-        let delay = 0;
-        const usedPositions = []; 
-
-        messages.forEach((msg, index) => {
-          
-          let topOffset, leftOffset, positionOK;
-          let attempts = 0;
-
-          do {
-            topOffset = Math.random() * 70 + 15;  // 范围: 15% to 85%
-            leftOffset = Math.random() * 70 + 15; // 范围: 15% to 85%
-            
-            positionOK = true;
-            for (const pos of usedPositions) {
-              const dist = Math.sqrt(Math.pow(pos.top - topOffset, 2) + Math.pow(pos.left - leftOffset, 2));
-              if (dist < 15) { // 避免中心点太近
-                positionOK = false;
-                break;
-              }
-            }
-            attempts++;
-          } while (!positionOK && attempts < 10);
-
-          // 即使尝试10次失败，也添加最后一个位置，避免死循环
-          usedPositions.push({ top: topOffset, left: leftOffset });
-
-          setTimeout(() => {
-            const popup = document.createElement('div');
-            popup.className = 'popup-message';
-            popup.innerHTML = `
-              <div class="titlebar">
-                <span class="icon">❤️</span>
-                <span class="title">To 小琳宝宝</span>
-              </div>
-              <div class="content">${msg}</div>
-            `;
-            
-            popup.style.top = `${topOffset}%`;
-            popup.style.left = `${leftOffset}%`;
-            
-            const rotation = Math.random() * 10 - 5; 
-            popup.style.transform = `translate(-50%, -50%) scale(0.8) translateY(20px)`;
-            popup.style.opacity = '0';
-            popup.style.zIndex = 10 + index;
-            popup.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
-            
-            popupLayer.appendChild(popup);
-
-            void popup.offsetWidth; // 强制回流
-
-            popup.style.opacity = '1';
-            popup.style.transform = `translate(-50%, -50%) scale(1) rotate(${rotation}deg)`;
-
-          }, delay);
-          delay += 800; // 每个弹窗间隔0.8秒
-        });
+    function showPopupsSequentially() {
+      if (!popupLayer) {
+        console.error("错误: 无法找到 'popup-layer'!");
+        return; 
       }
-    });
+
+      let delay = 0;
+      const usedPositions = []; 
+
+      messages.forEach((msg, index) => {
+        let topOffset, leftOffset, positionOK;
+        let attempts = 0;
+        do {
+          topOffset = Math.random() * 70 + 15;
+          leftOffset = Math.random() * 70 + 15;
+          positionOK = true;
+          for (const pos of usedPositions) {
+            const dist = Math.sqrt(Math.pow(pos.top - topOffset, 2) + Math.pow(pos.left - leftOffset, 2));
+            if (dist < 15 && attempts < 10) { 
+              positionOK = false;
+              break;
+            }
+          }
+          attempts++;
+        } while (!positionOK && attempts < 20); 
+
+        if(usedPositions.length > 10) {
+           usedPositions.shift(); 
+        }
+        usedPositions.push({ top: topOffset, left: leftOffset });
+
+        setTimeout(() => {
+          const popup = document.createElement('div');
+          popup.className = 'popup-message';
+          
+          const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+          const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+          popup.classList.add(randomStyle);
+          
+          popup.innerHTML = `
+            <div class="titlebar">
+              <span class="icon">${randomIcon}</span>
+              <span class="title">To 小琳宝宝</span>
+            </div>
+            <div class="content">${msg}</div>
+          `;
+          
+          popup.style.top = `${topOffset}%`;
+          popup.style.left = `${leftOffset}%`;
+          const rotation = Math.random() * 10 - 5; 
+          
+          popupLayer.appendChild(popup);
+
+          void popup.offsetWidth;
+
+          popup.style.opacity = '1';
+          popup.style.transform = `translate(-50%, -50%) scale(1) rotate(${rotation}deg)`;
+          
+          setTimeout(() => {
+            popup.classList.add('fade-out');
+            popup.addEventListener('transitionend', () => {
+              if(popup.parentNode) {
+                popup.remove();
+              }
+            }, { once: true });
+          }, 6000); 
+
+        }, delay);
+        delay += 800; 
+      });
+    }
   </script>
 </body>
 </html>
